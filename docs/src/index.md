@@ -9,8 +9,8 @@ Excel file.
 
 For more extensive functionality when reading and writing Excel files,
 consider using [XLSX.jl](https://juliadata.github.io/XLSX.jl/stable/).
-Under the hood, `ExcelFiles.jl` uses the `XLSX.jl` functions `readtable` 
-and `writetable`. 
+Under the hood, `ExcelFiles.jl` uses the `XLSX.jl` functions `readtable`, 
+`readtransposedtable` and `writetable`. 
 
 # Usage
 
@@ -92,7 +92,7 @@ The `load` function takes a number of arguments and keywords:
     FileIO.load(
         source::String,
         [sheet::String,
-        [columns::String]];
+        [rows_or_columns::String]];
         [first_row::Int],
         [first_column::String]
         [column_labels::Vector{String}],
@@ -106,12 +106,12 @@ The `load` function takes a number of arguments and keywords:
 
 * `source`: The name of the file to be loaded.
 * `sheet`: Specifies the sheet name to be loaded. If `sheet` is not given, the first Excel sheet in the file will be used.
-* `columns`: Determines which columns to read. For example, `"B:D"` will select columns B, C and D. If columns is not given, the algorithm will find the first sequence of consecutive non-empty cells. A valid sheet **must** be specified when specifying columns. If `transpose = true` or is omitted, `columns` should be used to specify rows. For example, specifying `"2:4"` with `transpose = true` will read only from these rows.
+* `rows_or_columns`: Determines which rows or columns to read. For example, `"B:D"` will select columns B, C and D. If columns is not given, the algorithm will find the first sequence of consecutive non-empty cells. A valid sheet **must** be specified when specifying columns. If `transpose = true` or is omitted, `rows_or_columns` should be used to specify rows. For example, specifying `"2:4"` with `transpose = true` will read only from these rows.
 
 ### Keywords:
 
 * `first_row`: Indicates the first row of the data table to be read. For example, `first_row=5` will look for a table starting at sheet row 5. If first_row is not given, the algorithm will look for the first non-empty row in the sheet (ignored if `transpose = true`).
-* `first_column`: Indicates the first row of the data table to be read. For example, `first_column="B"` will look for a table starting at sheet row 5. If first_row is not given, the algorithm will look for the first non-empty row in the sheet (ignored if `transpose = false` or is omitted).
+* `first_column`: Indicates the first column of the data table to be read. For example, `first_column="B"` will look for a table starting at sheet column B. If first_column is not given, the algorithm will look for the first non-empty column in the sheet (ignored if `transpose = false` or is omitted).
 * `column_labels`: Specifies column names for the header of the table. If `column_labels` are given and `header=true`, the headers given by `column_labels` will be used, and the first row of the table (containing headers) will be ignored.
 * `header`: Indicates if the first row (column if `transpose = true`) is a header. If `header=true` and `column_labels` is not specified, the column labels for the table will be read from the first row (column) of the table. If `header=false` and `column_labels` is not specified, the algorithm will generate column labels. The default value is `header=true`.
 * `normalizenames`: Set to `true` to normalize column names to valid Julia identifiers. Default=`false`.

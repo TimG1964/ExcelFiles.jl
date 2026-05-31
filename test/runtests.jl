@@ -1,18 +1,22 @@
-using ExcelFiles
-using Tables
-using Dates
-using XLSX
 using DataFrames
+using Dates
+using ExcelFiles
+using FileIO
 using Test
+using XLSX
 
 data_directory = joinpath(dirname(pathof(ExcelFiles)), "..", "test","data")
 @assert isdir(data_directory)
 
-# Helper: get columns and names from a loaded ExcelFile
+# Helper: get columns and names from a loaded XLSX.DataTable
 function get_cols(source)
-    tbl = Tables.columntable(source)
-    cols = [collect(tbl[n]) for n in Tables.columnnames(tbl)]
-    names = collect(Tables.columnnames(tbl))
+
+    # Sort labels by their stored column index
+    names = sort(source.column_labels; by = lbl -> source.column_label_index[lbl])
+
+    # Extract columns in that same order
+    cols = collect(source.data[source.column_label_index[lbl]] for lbl in names)
+
     return cols, names
 end
 
@@ -22,12 +26,12 @@ end
 
     efile = load(filename, "Sheet1")
 
-    @test Tables.istable(efile) == true
+    @test Tables.istable(efile) == true # Defined in XLSX.jl
 
-    # Test show renders expected number of rows and columns, without depending on exact truncation/wrapping
+    # Test show renders expected number of rows and columns.
     @testset "show plain text" begin
         s = sprint(show, efile)
-        @test s == "ExcelFile(\"$filename\")"
+        @test s == "XLSX.DataTable with 13 columns and 4 rows."
     end
 
     @testset "ReadTable" begin
@@ -124,8 +128,13 @@ end
         @test isequal(df[13], [missing, 3.4, "HKEJW", missing])
         @test ismissing(df[12][4])
 
-        # Too few column labels
-        @test_throws XLSX.XLSXError get_cols(load(filename, "Sheet1", "C:O"; header=true, column_labels=[:c1, :c2, :c3, :c4]))
+        # Too few column labels - Note: Bypass FileIO here to avoid false "Fatal Error" from FileIO when the error is correctly thrown by ExcelFiles for mismatched column_labels length.
+        try
+            ExcelFiles.load(File{format"Excel"}(filename), "Sheet1", "C:O"; header=true, column_labels=[:c1, :c2, :c3, :c4])
+            @test false  # should error before this line
+        catch e
+            @test  e isa XLSX.XLSXError && occursin("`column_range` (length=13) and `column_labels` (length=4) must have the same length.", e.msg)
+        end
 
         # Test for constructing DataFrame with empty header cell
         data, names = get_cols(load(filename, "Sheet2", "C:E"))
