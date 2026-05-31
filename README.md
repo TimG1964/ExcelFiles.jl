@@ -55,7 +55,7 @@ The source code for this package is hosted at
 ## License
 
 The source code for the package **ExcelFiles.jl** is licensed under
-the [MIT "Expat" License](https://github.com/queryverse/ExcelFiles.jl/master/LICENSE).
+the [MIT License](https://github.com/queryverse/ExcelFiles.jl/master/LICENSE).
 
 ## Getting Help
 
