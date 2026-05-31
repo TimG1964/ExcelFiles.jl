@@ -1,3 +1,9 @@
+# Unpublished
+* Migrate fully to XLSX.jl for load and save
+* Drop all dependencies except XLSX.jl and FileIO.jl
+* Add option to transpose table on read
+* update .github workflows
+
 # ExcelFiles.jl v1.0.0
 * Drop julia 0.7 support
 * Migrate to Project.toml
