@@ -9,15 +9,8 @@ data_directory = joinpath(dirname(pathof(ExcelFiles)), "..", "test","data")
 @assert isdir(data_directory)
 
 # Helper: get columns and names from a loaded XLSX.DataTable
-function get_cols(source)
-
-    # Sort labels by their stored column index
-    names = sort(source.column_labels; by = lbl -> source.column_label_index[lbl])
-
-    # Extract columns in that same order
-    cols = collect(source.data[source.column_label_index[lbl]] for lbl in names)
-
-    return cols, names
+function get_cols(source::XLSX.DataTable)
+    return source.data, source.column_labels
 end
 
 @testset "ExcelFiles" verbose=true begin
